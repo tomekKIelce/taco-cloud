@@ -15,5 +15,6 @@ public class TacoCloudApplication  implements WebMvcConfigurer {
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("home");
 
+
 }
 }
