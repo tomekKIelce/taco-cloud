@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
 import tacos.Ingredient;
 import tacos.Ingredient.Type;
+import tacos.Order;
 import tacos.Taco;
 import tacos.data.IngredientRepository;
+import tacos.data.TacoRepository;
 
 import javax.validation.Valid;
 
@@ -26,10 +28,11 @@ import javax.validation.Valid;
 public class DesignTacoController {
 
     private final IngredientRepository ingredientRepository;
-
+    private TacoRepository designRepo;
     @Autowired
-    public DesignTacoController(IngredientRepository ingredientRepository) {
+    public DesignTacoController(IngredientRepository ingredientRepository, TacoRepository designRepo) {
         this.ingredientRepository = ingredientRepository;
+        this.designRepo = designRepo;
     }
 
     @GetMapping
@@ -54,13 +57,21 @@ public class DesignTacoController {
 
     }
 
+    @ModelAttribute(name = "order")
+    public Order order() {return new Order();}
+
+    @ModelAttribute(name = "taco")
+    public Taco taco() {
+        return new Taco();
+    }
 
     @PostMapping
-    public String processDesign (@Valid @ModelAttribute("design") Taco design, Errors errors) {
+    public String processDesign (@Valid Taco design, Errors errors, @ModelAttribute Order order) {
         if (errors.hasErrors()) {
             return "design";
         }
-
+        Taco saved = designRepo.save(design);
+        order.addDesign(saved);
         log.info("Przetwarznie projektu taco: ");
         return "redirect:/orders/current";
 
