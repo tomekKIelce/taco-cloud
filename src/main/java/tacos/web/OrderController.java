@@ -9,7 +9,9 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.support.SessionStatus;
 import tacos.Order;
+import tacos.data.OrderRepository;
 
 import javax.validation.Valid;
 
@@ -18,18 +20,25 @@ import javax.validation.Valid;
 @RequestMapping("/orders")
 public class OrderController {
 
+    private OrderRepository orderRepo;
+
+    public OrderController(OrderRepository orderRepo) {
+        this.orderRepo = orderRepo;
+    }
+
     @GetMapping("/current")
     public String orderFrom(Model model) {
-        model.addAttribute("order", new Order());
+       // model.addAttribute("order", new Order());
         return "orderForm";
     }
 
     @PostMapping
-    public String proccesOrder(@Valid Order order, Errors errors) {
+    public String proccesOrder(@Valid Order order, Errors errors, SessionStatus sessionStatus) {
         if (errors.hasErrors()) {
             return "orderForm";
         }
-        log.info("Zamownienie zostało złożone" + order);
+        orderRepo.save(order);
+        sessionStatus.setComplete();
         return "redirect:/";
     }
 }
